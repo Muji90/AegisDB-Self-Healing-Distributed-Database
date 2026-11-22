@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AegisDB</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">A</div>
+
+            <div>
+                <h1>AegisDB</h1>
+                <span>Distributed Database</span>
+            </div>
+        </div>
+
+        <nav>
+
+            <button
+                class="nav-item active"
+                data-section="dashboard"
+            >
+                <span>◫</span>
+                Dashboard
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="database"
+            >
+                <span>◆</span>
+                Data Explorer
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="cluster"
+            >
+                <span>⬡</span>
+                Cluster
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="events"
+            >
+                <span>≋</span>
+                Live Events
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="metrics"
+            >
+                <span>▥</span>
+                Metrics
+            </button>
+
+            <button
+                class="nav-item"
+                data-section="about"
+            >
+                <span>◎</span>
+                Architecture
+            </button>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <div class="system-dot"></div>
+
+            <div>
+                <strong>
+                    Distributed Mode
+                </strong>
+
+                <small id="sidebarNode">
+                    Connecting...
+                </small>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+
+                <p class="eyebrow">
+                    SELF-HEALING DISTRIBUTED DATABASE
+                </p>
+
+                <h2 id="pageTitle">
+                    Cluster Overview
+                </h2>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <div class="live-pill">
+                    <span></span>
+                    LIVE
+                </div>
+
+                <div class="node-badge">
+
+                    <div class="node-avatar">
+                        N
+                    </div>
+
+                    <div>
+                        <small>
+                            Connected Node
+                        </small>
+
+                        <strong id="currentNode">
+                            ...
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section
+            id="dashboard"
+            class="page-section active"
+        >
+
+            <div class="hero-card">
+
+                <div>
+
+                    <span class="hero-label">
+                        SYSTEM STATUS
+                    </span>
+
+                    <h3>
+                        AegisDB Cluster
+                    </h3>
+
+                    <p>
+                        Fault-tolerant storage with
+                        quorum replication, vector
+                        clocks, consistent hashing,
+                        failure detection and
+                        automatic leader election.
+                    </p>
+
+                </div>
+
+
+                <div class="hero-health">
+
+                    <div
+                        class="health-ring"
+                        id="healthRing"
+                    >
+                        <span id="healthPercent">
+                            100%
+                        </span>
+                    </div>
+
+                    <p>
+                        Cluster Health
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ⬡
+                    </div>
+
+                    <div>
+                        <span>
+                            Healthy Nodes
+                        </span>
+
+                        <strong id="healthyNodes">
+                            -
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ♛
+                    </div>
+
+                    <div>
+                        <span>
+                            Leader (Bully)
+                        </span>
+
+                        <strong id="raftLeader">
+                            Electing...
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ◈
+                    </div>
+
+                    <div>
+                        <span>
+                            Replication
+                        </span>
+
+                        <strong id="replicationFactor">
+                            -
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ⚡
+                    </div>
+
+                    <div>
+                        <span>
+                            Requests
+                        </span>
+
+                        <strong id="totalRequests">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-grid">
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <span class="panel-kicker">
+                                LIVE
+                            </span>
+
+                            <h3>
+                                Cluster Nodes
+                            </h3>
+                        </div>
+
+                        <button
+                            class="ghost-btn"
+                            onclick="refreshAll()"
+                        >
+                            Refresh
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="dashboardNodes"
+                        class="node-grid"
+                    ></div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <span class="panel-kicker">
+                                CONSENSUS
+                            </span>
+
+                            <h3>
+                                Leader Election (Bully)
+                            </h3>
+                        </div>
+
+                    </div>
+
+
+                    <div class="raft-card">
+
+                        <div class="raft-row">
+                            <span>Current Node</span>
+                            <strong id="raftNode">-</strong>
+                        </div>
+
+                        <div class="raft-row">
+                            <span>State</span>
+                            <strong id="raftState">-</strong>
+                        </div>
+
+                        <div class="raft-row">
+                            <span>Current Term</span>
+                            <strong id="raftTerm">-</strong>
+                        </div>
+
+                        <div class="raft-row">
+                            <span>Leader</span>
+                            <strong id="raftLeaderDetail">-</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="database"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    DISTRIBUTED STORAGE
+                </p>
+
+                <h2>
+                    Data Explorer
+                </h2>
+
+                <p>
+                    Create, retrieve and manage
+                    distributed records without
+                    working directly with raw JSON.
+                </p>
+
+            </div>
+
+
+            <div class="db-grid">
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <span class="panel-kicker">
+                                WRITE
+                            </span>
+
+                            <h3>
+                                Create or Update Record
+                            </h3>
+                        </div>
+
+                        <div class="mode-pill">
+                            EASY MODE
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="putKey">
+                            Record Key
+                        </label>
+
+                        <input
+                            id="putKey"
+                            placeholder="student:101"
+                        >
+
+                        <span class="field-help">
+                            A unique identifier used to
+                            locate this record across the
+                            distributed cluster.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="recordName">
+                                Name
+                            </label>
+
+                            <input
+                                id="recordName"
+                                placeholder="name"
+                            >
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="recordYear">
+                                Year
+                            </label>
+
+                            <input
+                                id="recordYear"
+                                type="number"
+                                min="1"
+                                max="10"
+                                placeholder="0"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="recordProgram">
+                            Program
+                        </label>
+
+                        <input
+                            id="recordProgram"
+                            placeholder="Software Engineering"
+                        >
+
+                    </div>
+
+
+                    <button
+                        class="primary-btn wide-btn"
+                        onclick="putRecord()"
+                    >
+                        ◆ Replicate Record
+                    </button>
+
+
+                    <div
+                        id="writeSuccess"
+                        class="operation-message hidden"
+                    ></div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <span class="panel-kicker">
+                                READ
+                            </span>
+
+                            <h3>
+                                Find Record
+                            </h3>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="getKey">
+                            Record Key
+                        </label>
+
+                        <input
+                            id="getKey"
+                            placeholder="student:101"
+                        >
+
+                    </div>
+
+
+                    <div class="action-row">
+
+                        <button
+                            class="primary-btn"
+                            onclick="getRecord()"
+                        >
+                            Retrieve Record
+                        </button>
+
+                        <button
+                            class="danger-btn"
+                            onclick="deleteRecord()"
+                        >
+                            Delete
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="emptyRecordState"
+                        class="empty-record-state"
+                    >
+
+                        <div class="empty-record-icon">
+                            ◇
+                        </div>
+
+                        <strong>
+                            No record selected
+                        </strong>
+
+                        <p>
+                            Enter a record key above and
+                            click Retrieve Record.
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        id="recordCard"
+                        class="record-card hidden"
+                    >
+
+                        <div class="record-card-header">
+
+                            <div>
+
+                                <span class="record-found">
+                                    RECORD FOUND
+                                </span>
+
+                                <h3 id="resultKey">
+                                    -
+                                </h3>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="record-details">
+
+                            <div class="record-field">
+                                <span>Name</span>
+                                <strong id="resultName">-</strong>
+                            </div>
+
+                            <div class="record-field">
+                                <span>Program</span>
+                                <strong id="resultProgram">-</strong>
+                            </div>
+
+                            <div class="record-field">
+                                <span>Year</span>
+                                <strong id="resultYear">-</strong>
+                            </div>
+
+
+                        <div class="metadata-title">
+
+                            <span>
+                                DISTRIBUTED METADATA
+                            </span>
+
+                            <div class="metadata-line"></div>
+
+                        </div>
+
+
+                        <div class="metadata-grid">
+
+                            <div class="metadata-item">
+                                <span>Vector Clock</span>
+                                <strong id="resultVectorClock">-</strong>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span>Replica Responses</span>
+                                <strong id="resultReplicas">-</strong>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span>Read Quorum</span>
+                                <strong
+                                    id="resultQuorum"
+                                    class="success-text"
+                                >
+                                    -
+                                </strong>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span>Conflicts</span>
+                                <strong
+                                    id="resultConflicts"
+                                    class="success-text"
+                                >
+                                    -
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            id="rawToggle"
+                            class="raw-toggle-btn"
+                            onclick="toggleRawJson()"
+                        >
+                            View Raw JSON
+                        </button>
+
+                        <pre
+                            id="rawJson"
+                            class="raw-json hidden"
+                        ></pre>
+
+                    </div>
+
+
+                    <div
+                        id="recordError"
+                        class="record-error hidden"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel records-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="panel-kicker">
+                            LOCAL STORAGE
+                        </span>
+
+                        <h3>
+                            Records on Current Node
+                        </h3>
+                    </div>
+
+                    <button
+                        class="ghost-btn"
+                        onclick="loadKeys()"
+                    >
+                        Refresh
+                    </button>
+
+                </div>
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Record</th>
+                            <th>Vector Clock</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="recordsTable">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="cluster"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    FAILURE MANAGEMENT
+                </p>
+
+                <h2>
+                    Cluster Control
+                </h2>
+
+                <p>
+                    Simulate server failures and observe
+                    automatic detection, self-healing
+                    and Bully leader re-election.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="panel-kicker">
+                            NODES
+                        </span>
+
+                        <h3>
+                            Failure Simulator
+                        </h3>
+                    </div>
+
+                </div>
+
+                <div
+                    id="clusterControl"
+                    class="cluster-control"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="events"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    OBSERVABILITY
+                </p>
+
+                <h2>
+                    Live Distributed Events
+                </h2>
+
+                <p>
+                    Watch consensus, failures,
+                    recovery and replica activity
+                    across the AegisDB cluster.
+                </p>
+
+            </div>
+
+
+            <div class="event-stats-grid">
+
+                <div class="event-stat-card">
+
+                    <span class="event-stat-label">
+                        FAILURES
+                    </span>
+
+                    <strong id="eventFailureCount">
+                        0
+                    </strong>
+
+                    <small>
+                        detected nodes
+                    </small>
+
+                </div>
+
+
+                <div class="event-stat-card">
+
+                    <span class="event-stat-label">
+                        LEADER ELECTIONS
+                    </span>
+
+                    <strong id="eventElectionCount">
+                        0
+                    </strong>
+
+                    <small>
+                        consensus changes
+                    </small>
+
+                </div>
+
+
+                <div class="event-stat-card">
+
+                    <span class="event-stat-label">
+                        SELF-HEALS
+                    </span>
+
+                    <strong id="eventHealCount">
+                        0
+                    </strong>
+
+                    <small>
+                        replicas restored
+                    </small>
+
+                </div>
+
+
+                <div class="event-stat-card">
+
+                    <span class="event-stat-label">
+                        READ REPAIRS
+                    </span>
+
+                    <strong id="eventReadRepairCount">
+                        0
+                    </strong>
+
+                    <small>
+                        stale copies repaired
+                    </small>
+
+                </div>
+
+
+                <div class="event-stat-card">
+
+                    <span class="event-stat-label">
+                        REBALANCES
+                    </span>
+
+                    <strong id="eventRebalanceCount">
+                        0
+                    </strong>
+
+                    <small>
+                        replicas relocated
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel event-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span class="panel-kicker">
+                            LIVE STREAM
+                        </span>
+
+                        <h3>
+                            Cluster Activity
+                        </h3>
+
+                    </div>
+
+
+                    <div class="event-live-indicator">
+
+                        <span></span>
+
+                        Updating automatically
+
+                    </div>
+
+                </div>
+
+
+                <div class="event-filter-row">
+
+                    <button
+                        class="event-filter active"
+                        data-event-filter="all"
+                    >
+                        All
+                    </button>
+
+                    <button
+                        class="event-filter"
+                        data-event-filter="system"
+                    >
+                        System
+                    </button>
+
+                    <button
+                        class="event-filter"
+                        data-event-filter="consensus"
+                    >
+                        Consensus
+                    </button>
+
+                    <button
+                        class="event-filter"
+                        data-event-filter="recovery"
+                    >
+                        Recovery
+                    </button>
+
+                    <button
+                        class="event-filter"
+                        data-event-filter="storage"
+                    >
+                        Storage
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="eventList"
+                    class="event-list"
+                >
+
+                    <div class="event-empty">
+
+                        <div class="event-empty-icon">
+                            ≋
+                        </div>
+
+                        <strong>
+                            Waiting for cluster events
+                        </strong>
+
+                        <p>
+                            Failure detection,
+                            self-healing and leader
+                            elections will appear here.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="metrics"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+                <p class="eyebrow">
+                    PERFORMANCE & RELIABILITY
+                </p>
+
+                <h2>
+                    Distributed Metrics
+                </h2>
+
+                <p>
+                    Visualize request throughput, node health, leadership and
+                    recovery activity as the cluster changes over time.
+                </p>
+            </div>
+
+            <div class="metric-summary-grid">
+                <div class="metric-summary-card">
+                    <span>AVG READ LATENCY</span>
+                    <strong id="metricReadLatency">0.00 ms</strong>
+                    <small>successful GET operations</small>
+                </div>
+
+                <div class="metric-summary-card">
+                    <span>AVG WRITE LATENCY</span>
+                    <strong id="metricWriteLatency">0.00 ms</strong>
+                    <small>successful PUT operations</small>
+                </div>
+
+                <div class="metric-summary-card">
+                    <span>QUORUM SUCCESS</span>
+                    <strong id="metricQuorumSuccess">100%</strong>
+                    <small>successful read/write operations</small>
+                </div>
+
+                <div class="metric-summary-card">
+                    <span>CURRENT LEADER</span>
+                    <strong id="metricLeader">Electing</strong>
+                    <small id="metricTerm">Election term 0</small>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="panel metric-chart-card">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-kicker">TRAFFIC</span>
+                            <h3>Request Throughput</h3>
+                        </div>
+                        <span class="chart-note">requests / 2 sec</span>
+                    </div>
+                    <canvas id="throughputChart" class="metric-canvas"></canvas>
+                </div>
+
+                <div class="panel metric-chart-card">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-kicker">AVAILABILITY</span>
+                            <h3>Node Health Timeline</h3>
+                        </div>
+                        <span class="chart-note">Last 6 minutes</span>
+                    </div>
+                    <canvas id="healthChart" class="metric-canvas"></canvas>
+                </div>
+
+                <div class="panel metric-chart-card">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-kicker">CONSENSUS</span>
+                            <h3>Leader & Election Term History</h3>
+                        </div>
+                        <span class="chart-note">leadership progression</span>
+                    </div>
+                    <canvas id="raftChart" class="metric-canvas"></canvas>
+                </div>
+
+                <div class="panel metric-chart-card">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-kicker">RECOVERY</span>
+                            <h3>Self-Healing Activity</h3>
+                        </div>
+                        <span class="chart-note">cumulative repairs</span>
+                    </div>
+                    <canvas id="recoveryChart" class="metric-canvas"></canvas>
+                </div>
+            </div>
+
+            <div class="panel metric-observation-panel">
+                <div class="panel-header">
+                    <div>
+                        <span class="panel-kicker">KEY OBSERVATIONS</span>
+                        <h3>Current System Interpretation</h3>
+                    </div>
+                </div>
+
+                <div class="metric-observations">
+                    <div>
+                        <strong>Throughput</strong>
+                        <p id="metricThroughputObservation">Waiting for request samples.</p>
+                    </div>
+                    <div>
+                        <strong>Node Health</strong>
+                        <p id="metricHealthObservation">Waiting for cluster health samples.</p>
+                    </div>
+                    <div>
+                        <strong>Consensus</strong>
+                        <p id="metricConsensusObservation">Waiting for election samples.</p>
+                    </div>
+                    <div>
+                        <strong>Recovery</strong>
+                        <p id="metricRecoveryObservation">No recovery activity recorded yet.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <section
+            id="about"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    SYSTEM DESIGN
+                </p>
+
+                <h2>
+                    AegisDB Architecture
+                </h2>
+
+                <p>
+                    Core distributed algorithms
+                    implemented by the platform.
+                </p>
+
+            </div>
+
+
+            <div class="architecture-grid">
+
+                <article class="architecture-card">
+
+                    <span>01</span>
+
+                    <h3>
+                        Consistent Hashing
+                    </h3>
+
+                    <p>
+                        SHA-256 and virtual nodes
+                        distribute keys throughout
+                        the cluster while minimizing
+                        unnecessary data movement.
+                    </p>
+
+                </article>
+
+
+                <article class="architecture-card">
+
+                    <span>02</span>
+
+                    <h3>
+                        Quorum Replication
+                    </h3>
+
+                    <p>
+                        Multiple replicas protect
+                        records and allow AegisDB
+                        to continue operating when
+                        individual nodes fail.
+                    </p>
+
+                </article>
+
+
+                <article class="architecture-card">
+
+                    <span>03</span>
+
+                    <h3>
+                        Vector Clocks
+                    </h3>
+
+                    <p>
+                        Logical timestamps track
+                        distributed updates and help
+                        identify causal ordering and
+                        conflicting versions.
+                    </p>
+
+                </article>
+
+
+                <article class="architecture-card">
+
+                    <span>04</span>
+
+                    <h3>
+                        Failure Detection
+                    </h3>
+
+                    <p>
+                        Heartbeat messages continuously
+                        monitor server availability
+                        and identify failed nodes.
+                    </p>
+
+                </article>
+
+
+                <article class="architecture-card">
+
+                    <span>05</span>
+
+                    <h3>
+                        Bully Leader Election
+                    </h3>
+
+                    <p>
+                        The highest-numbered live node
+                        always wins. When the leader
+                        fails, the next highest takes
+                        over (node5, node4, node3...).
+                    </p>
+
+                </article>
+
+
+                <article class="architecture-card">
+
+                    <span>06</span>
+
+                    <h3>
+                        Self-Healing Replication
+                    </h3>
+
+                    <p>
+                        Missing replicas are
+                        automatically recreated on
+                        healthy nodes and rebalanced
+                        after failed nodes recover.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <div
+            id="toast"
+            class="toast"
+        ></div>
+
+    </main>
+
+</div>
+
+<script src="/static/app.js"></script>
+
+</body>
+
+</html>
